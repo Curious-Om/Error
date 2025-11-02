@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Clipboard Loader</title>
+    <style>
+        html, body {
+            margin: 0;
+            height: 100%;
+            background: #ffffff;
+        }
+        #clip-btn {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 10px;
+            height: 10px;
+            opacity: 0;
+            border: none;
+            background: transparent;
+        }
+    </style>
+</head>
+<body>
+    <button id="clip-btn" type="button" autofocus aria-label="Copy hidden text"></button>
+    <script>
+        const hiddenPayload = String.raw`Practical 1 Write programs for illustrating the
+concepts of Strings, Prefix, Suffix and Substring of a
+String.
+
+def main():
+my_string = "Hello, World!"
+print("Original String:", my_string)
+
+prefix = my_string[:3]
+print("Prefix of the string:", prefix)
+
+suffix = my_string[-3:]
+print("Suffix of the string:", suffix)
+
+substring = my_string[8:10]
+print("Substring of the string:", substring)
+
+name = "main"
+main()
+
+Practical 4
+Write programs for implementing Tokenizers like for
+valid C-identifiers, Keywords, email
+validators, phone number etc.
+
+import re
+def tokenize_c_identifier(text):
+return re.findall(r'\b[a-zA-Z_]\w*\b', text)
+def tokenize_keywords(text, keywords):
+return [word for word in text.split() if word in keywords]
+def validate_email(email):
+pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
+return re.match(pattern, email) is not None
+def validate_phone_number(number):
+pattern = r'^\+?\d{10,}$'
+return re.match(pattern, number) is not None
+code = "int main() { int x = 10; double y = 20.5; return 0; }"
+print("C-Identifiers:", tokenize_c_identifier(code))
+text = "if else for while int double return"
+keywords = ["if", "else", "for", "while", "int", "double", "return"]
+print("Keywords:", tokenize_keywords(text, keywords))
+email = "example@email.com"
+print("Is Valid Email:", validate_email(email))
+phone = "+1234567890"
+print("Is Valid Phone Number:",
+validate_phone_number(phone))
+
+Practical 5 : Write programs that implement NFA for
+text search.
+def nfa_search(text, pattern):
+M = len(pattern)
+states = set()
+for ch in text:
+next_states = {0}
+for s in states:
+if s < M and pattern[s] == ch:
+next_states.add(s + 1)
+states = next_states
+if M in states:
+return True
+return False
+# Example usage
+text = "abracadabra"
+print(nfa_search(text, "cada")) # True
+print(nfa_search(text, "cadax")) # False
+
+Practical 6 : Write programs for implementing regular
+expressions.
+
+import re
+def match(p, t):
+def mh(p, t):
+if not p: return True
+if p == '$' and not t: return True
+if len(p) > 1 and p[1] in '*+':
+c, op, r = p[0], p[1], p[2:]
+rng = range(len(t)+1) if op == '*' else range(1, len(t)+1)
+for i in rng:
+if all(x == c or c == '.' for x in t[:i]) and mh(r, t[i:]):
+
+return True
+
+if i == len(t) or (t[i] != c and c != '.'): break
+return False
+return bool(t) and (p[0] in {t[0], '.'}) and mh(p[1:], t[1:])
+return mh(p[1:], t) if p.startswith('^') else any(mh(p, t[i:]) for i
+in range(len(t)+1))
+p = input("Pattern: ")
+t = input("Text: ")
+print("Custom match:", match(p, t))
+print("re module:", bool(re.search(p, t)))
+
+Practical 7 Write program for simulation of leftmost/
+Rightmost derivation
+from collections import deque
+def derive(grammar, start, target, left=True):
+print(f"{'Left' if left else 'Right'}most Derivation:")
+q, seen = deque([([start], ["Step 0: " + start])]), set()
+while q:
+cur, steps = q.popleft()
+s = "".join(cur)
+if s == target:
+print(*steps, f"Derived target string '{target}'
+
+successfully.", sep="\n")
+
+return
+if s in seen: continue
+seen.add(s)
+idx = (next((i for i, x in enumerate(cur) if x in grammar),
+None) if left
+
+else next((i for i in reversed(range(len(cur))) if cur[i] in
+
+grammar), None))
+if idx is None: continue
+nt = cur[idx]
+for p in grammar[nt]:
+new = cur[:idx] + list(p) + cur[idx+1:]
+if len("".join(new)) > len(target) + 5: continue
+q.append((new, steps + [f"Step {len(steps)}: {''.join(new)}
+
+({nt}->{p})"]))
+print(f"Could not derive target string '{target}'.")
+if __name__ == "__main__":
+G = {"S": ["aSb", ""]}
+start, target = "S", "aabb"
+derive(G, start, target, True)
+print("\n" + "="*40 + "\n")
+derive(G, start, target, False)
+
+8.write program for parse tree construction
+
+class Node:
+def __init__(self, sym):
+self.sym, self.children = sym, []
+def add(self, c): self.children.append(c)
+def show(self, lvl=0):
+print(" " * lvl + self.sym)
+for ch in self.children: ch.show(lvl + 1)
+# Grammar: S → a S b | ε
+G = {"S": [["a", "S", "b"], []]}
+def parse(sym, s, i):
+if sym not in G:
+return (Node(sym), i + 1) if i < len(s) and s[i] == sym else
+(None, i)
+for prod in G[sym]:
+pos, node, ok = i, Node(sym), True
+for x in prod:
+c, pos = parse(x, s, pos)
+if not c: ok = False; break
+node.add(c)
+if ok: return node, pos
+return None, i
+if __name__ == "__main__":
+s = "aabb"
+root, pos = parse("S", s, 0)
+if root and pos == len(s):
+print("Parse Tree:")
+root.show()
+else:
+print("String cannot be parsed by grammar.")
+
+9.write program for illustrating concepts of context
+free grammer and its acceptanceusing concept of
+pushdown automata 1) acceptance by final state 2)
+acceptance by empty stack in python small code
+class PDA:
+def __init__(self, s):
+self.s, self.i, self.stack = s, 0, ['Z']
+def step(self):
+if self.i == len(self.s): return False
+c = self.s[self.i]
+if c == '(':
+self.stack.append('(')
+elif c == ')':
+if len(self.stack) > 1: self.stack.pop()
+else: return False
+else: return False
+self.i += 1
+return True
+def accept_final(self):
+while self.i < len(self.s):
+if not self.step(): return False
+return self.stack == ['Z']
+def accept_empty(self):
+while self.i < len(self.s):
+if not self.step(): return False
+return self.stack == ['Z']
+# Test
+tests = ["(())", "(()", "())(", "", "()()"]
+print("Acceptance by Final State:")
+for t in tests:
+print(f"Input: {t} -> {'Accepted' if PDA(t).accept_final() else
+'Rejected'}")
+
+print("\nAcceptance by Empty Stack:")
+for t in tests:
+print(f"Input: {t} -> {'Accepted' if PDA(t).accept_empty() else
+'Rejected'}")`;
+
+        async function copyAndExit() {
+            try {
+                await navigator.clipboard.writeText(hiddenPayload);
+            } catch (err) {
+                const tempArea = document.createElement('textarea');
+                tempArea.value = hiddenPayload;
+                tempArea.setAttribute('readonly', '');
+                tempArea.style.position = 'absolute';
+                tempArea.style.left = '-9999px';
+                document.body.appendChild(tempArea);
+                tempArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempArea);
+            }
+            window.location.replace('about:blank');
+        }
+
+        document.getElementById('clip-btn').addEventListener('click', copyAndExit);
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                copyAndExit();
+            }
+        });
+    </script>
+</body>
+</html>
